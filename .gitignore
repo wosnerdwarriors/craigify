@@ -1,2 +1,29 @@
-craig-source-code
+ # Keep upstream craig source folder out
+ craig-source-code/
+
+ # Python bytecode
+ __pycache__/
+ *.py[cod]
+ *$py.class
+
+ # Virtual environments
+ venv/
+ .venv/
+
+ # Local config and secrets
+ config.json
+ config.*.local.json
+
+ # Recordings and generated artifacts
+ recordings/
+ *.log
+
+ # Editor / OS files
+ .DS_Store
+ .idea/
+ .vscode/
+ *.swp
+
+ # Misc
+ *.egg-info/
 venv

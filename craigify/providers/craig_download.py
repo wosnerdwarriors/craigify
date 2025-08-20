@@ -53,7 +53,7 @@ def poll_until_ready(recording_id: str, key: str, interval: float = 2.0, timeout
         time.sleep(interval)
 
 
-def post_process_to_final(downloaded_path: str, final_dir: str, work_dir: str, base_name: str, final_format: str, opus_bitrate: str = "24k", mp3_bitrate: str = "128k"):
+def post_process_to_final(downloaded_path: str, final_dir: str, work_dir: str, base_name: str, final_format: str, opus_bitrate: str = "24k", mp3_bitrate: str = "128k", no_cleanup: bool = False):
     if final_format not in ("opus", "mp3"):
         return None
     if not ffmpeg_exists():
@@ -80,8 +80,8 @@ def post_process_to_final(downloaded_path: str, final_dir: str, work_dir: str, b
             cmd += ['-filter_complex', filter_complex, '-c:a','libopus','-b:a', opus_bitrate,'-vbr','on','-application','voip','-ac','1','-ar','48000', out]
             run_ffmpeg(cmd)
             if os.path.exists(out):
-                if os.path.isdir(stems):
-                    shutil.rmtree(stems, ignore_errors=True)
+                    if os.path.isdir(stems) and not no_cleanup:
+                        shutil.rmtree(stems, ignore_errors=True)
         else:
             cmd = ['ffmpeg','-y','-i', downloaded_path,'-c:a','libopus','-b:a',opus_bitrate,'-vbr','on','-application','voip','-ac','1','-ar','48000', out]
             run_ffmpeg(cmd)
@@ -108,15 +108,15 @@ def post_process_to_final(downloaded_path: str, final_dir: str, work_dir: str, b
             cmd += ['-filter_complex', filter_complex, '-c:a','libmp3lame','-b:a', mp3_bitrate,'-ac','1','-ar','48000', out]
             run_ffmpeg(cmd)
             if os.path.exists(out):
-                if os.path.isdir(stems):
-                    shutil.rmtree(stems, ignore_errors=True)
+                    if os.path.isdir(stems) and not no_cleanup:
+                        shutil.rmtree(stems, ignore_errors=True)
         else:
             cmd = ['ffmpeg','-y','-i', downloaded_path,'-c:a','libmp3lame','-b:a', mp3_bitrate,'-ac','1','-ar','48000', out]
             run_ffmpeg(cmd)
         return out
 
 
-def run_download_flow(metadata: dict, recording_id: str, key: str, *, mix: str, file_type: str, output_root: str, clobber: bool, final_format: str = 'none', opus_bitrate: str = '24k', mp3_bitrate: str = '128k', space_check: bool = True, force_job_recreate: bool = False, verbose: bool = False, debug: bool = False):
+def run_download_flow(metadata: dict, recording_id: str, key: str, *, mix: str, file_type: str, output_root: str, clobber: bool, final_format: str = 'none', opus_bitrate: str = '24k', mp3_bitrate: str = '128k', space_check: bool = True, force_job_recreate: bool = False, verbose: bool = False, debug: bool = False, no_cleanup: bool = False):
     base_name = build_base_name(metadata)
     dirs = get_recording_dirs(output_root, base_name, clobber=clobber)
     # persist metadata
@@ -205,7 +205,7 @@ def run_download_flow(metadata: dict, recording_id: str, key: str, *, mix: str, 
 
     final_out = None
     if final_format in ('opus','mp3'):
-        final_out = post_process_to_final(out_path, dirs['final'], dirs['work'], base_name, final_format, opus_bitrate, mp3_bitrate)
+        final_out = post_process_to_final(out_path, dirs['final'], dirs['work'], base_name, final_format, opus_bitrate, mp3_bitrate, no_cleanup=no_cleanup)
         update_manifest(dirs['record'], {
             'final': {
                 'file': final_out,

@@ -1,0 +1,14 @@
+{
+  "openai": {
+    "api_key": "YOUR_OPENAI_API_KEY"
+  },
+  "discord": {
+    "bot_token": "YOUR_DISCORD_BOT_TOKEN",
+    "channel_id": "123456789012345678",
+    "webhook_url": "https://discord.com/api/webhooks/...."
+  },
+  "services": {
+    "default_transcribe_backend": "faster_whisper",
+    "default_model": "small"
+  }
+}
