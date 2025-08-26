@@ -103,3 +103,24 @@ def get_recording_dirs(output_root: str, base_name: str, clobber: bool = False):
         'meta': meta,
         'logs': logs,
     }
+
+
+def find_existing_record_dir(output_root: str, base_name: str) -> str | None:
+    """Return an existing record dir under output_root whose basename starts with base_name.
+
+    If multiple matches are found, return the most recently modified one. Return None if not found.
+    """
+    root = os.path.abspath(output_root)
+    if not os.path.isdir(root):
+        return None
+    candidates = []
+    for name in os.listdir(root):
+        if not name.startswith(base_name):
+            continue
+        full = os.path.join(root, name)
+        if os.path.isdir(full):
+            candidates.append(full)
+    if not candidates:
+        return None
+    candidates.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+    return candidates[0]

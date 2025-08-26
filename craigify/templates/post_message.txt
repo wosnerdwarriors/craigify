@@ -1,0 +1,8 @@
+Recording: ${id}
+Started: ${start}
+Server: ${server}
+Channel: ${channel}
+Duration: ${duration}
+Users: ${users}
+
+Final audio and transcripts attached.

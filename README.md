@@ -46,14 +46,35 @@ This tool looks for `config.json` in the current working directory by default. Y
 
 If `config.json` is missing and you didn't explicitly pass `--config`, that is fine unless an action requires secrets (for example using the OpenAI API for transcription, or posting to Discord). In that case the command will error and indicate you must either pass the required keys as CLI flags or provide a `config.json` with the required fields.
 
+
 Example `config.json` (see `config.example.json`):
 
 ```
 {
     "openai": { "api_key": "..." },
-    "discord": { "bot_token": "...", "channel_id": "...", "webhook_url": "..." }
+    "discord": { "bot_token": "...", "channel_aliases": { "default": "123...", "reports": "456..." }, "webhook_aliases": { "primary": "https://...", "mirror": "https://..." } }
 }
 ```
+
+Discord tips
+------------
+
+You can post results back to Discord in two ways:
+
+- Webhook: set `discord.webhook_url` in `config.json` or pass `--post-discord-webhook` on the CLI.
+- Bot token: set `discord.bot_token` in `config.json`, export `DISCORD_BOT_TOKEN` in your environment, or pass `--post-discord-bot-token` on the CLI.
+
+Channel selection supports aliases only. Add `discord.channel_aliases` to `config.json` as a mapping of alias -> channel_id (strings). When posting with a bot token you may pass either a channel alias via `--post-discord-channel` (alias required) or select an alias configured in `config.json`.
+
+Resolution priority for bot token/channel is:
+
+1. CLI flags (`--post-discord-bot-token`, `--post-discord-channel`)
+2. `config.json` (`discord.bot_token`, `discord.channel_aliases`)
+3. Environment variable `DISCORD_BOT_TOKEN` (for bot token only)
+
+If no webhook aliases nor bot token+channel alias are configured, the `post` action will skip posting and print a helpful message.
+
+Webhooks use aliases only (recommended). Add `discord.webhook_aliases` to `config.json` as a mapping of alias -> webhook_url. On the CLI you may pass `--post-discord-webhook` with either a single alias or a comma-separated list of aliases/URLs. Each resolved webhook will be posted to in turn. If you pass a raw URL it will be used directly, but prefer aliases for portability.
 
 Examples
 --------

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# This is a legacy file that i had written before trying to write an "all in one tool"
+# i keep this around for reference and will be deleted at some stage
+
+
 
 import argparse
 import glob
